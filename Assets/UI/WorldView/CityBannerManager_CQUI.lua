@@ -1201,37 +1201,34 @@ function OnCityBannerClick( playerID, cityID )
         end
     end
     
-    local localPlayerID;
-    if (WorldBuilder.IsActive()) then
-        localPlayerID = playerID;   -- If WorldBuilder is active, allow the user to select the city
-    else
-        localPlayerID = Game.GetLocalPlayer();
-    end
+    local localPlayerID :number = Game.GetLocalPlayer();
+    -- If WorldBuilder is active, allow the user to select the city
+    local allowCityView :boolean = localPlayerID == pPlayer:GetID() or WorldBuilder.IsActive();
+    -- allowCityView = true;
 
-    if (pPlayer:GetID() == localPlayerID) then
+    if UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then
+        local plotID = Map.GetPlotIndex(pCity:GetX(), pCity:GetY());
+        LuaEvents.CityBannerManager_MakeTradeRouteDestination( plotID );
+    elseif allowCityView then
         UI.SelectCity( pCity );
         UI.SetCycleAdvanceTimer(0);     -- Cancel any auto-advance timer
         UI.SetInterfaceMode(InterfaceModeTypes.CITY_MANAGEMENT);
     elseif (localPlayerID == PlayerTypes.OBSERVER 
             or localPlayerID == PlayerTypes.NONE 
             or pPlayer:GetDiplomacy():HasMet(localPlayerID)) then
-        LuaEvents.CQUI_CityviewDisable(); -- Make sure the cityview is disabled
+        LuaEvents.CQUI_CityviewDisable(); -- Make sure the cityview is disable
+
         local pPlayerConfig :table   = PlayerConfigurations[playerID];
         local isMinorCiv    :boolean = pPlayerConfig:GetCivilizationLevelTypeID() ~= CivilizationLevelTypes.CIVILIZATION_LEVEL_FULL_CIV;
         -- print("clicked player " .. playerID .. " city.  IsMinor?: ",isMinorCiv);
 
-        if UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then
-            local plotID = Map.GetPlotIndex(pCity:GetX(), pCity:GetY());
-            LuaEvents.CityBannerManager_MakeTradeRouteDestination( plotID );    
-        else        
-            if isMinorCiv then
-                if UI.GetInterfaceMode() ~= InterfaceModeTypes.SELECTION then
-                    UI.SetInterfaceMode(InterfaceModeTypes.SELECTION);
-                end
-                LuaEvents.CityBannerManager_RaiseMinorCivPanel( playerID ); -- Go directly to a city-state
-            else
-                LuaEvents.CityBannerManager_TalkToLeader( playerID );
+        if isMinorCiv then
+            if UI.GetInterfaceMode() ~= InterfaceModeTypes.SELECTION then
+                UI.SetInterfaceMode(InterfaceModeTypes.SELECTION);
             end
+            LuaEvents.CityBannerManager_RaiseMinorCivPanel( playerID ); -- Go directly to a city-state
+        else
+            -- LuaEvents.CityBannerManager_TalkToLeader( playerID );
         end
     end
 
