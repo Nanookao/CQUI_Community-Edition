@@ -1,3 +1,4 @@
+print("Loading WorldTracker_CQUI.lua from CQUI");
 include("ToolTipHelper");
 include("CQUICommon.lua");
 
@@ -12,11 +13,19 @@ end
 -- ===========================================================================
 -- Overwritten base functions
 -- ===========================================================================
+BASE_CQUI_LateInitialize      = LateInitialize
+
+BASE_CQUI_OnCivicChanged      = OnCivicChanged
+BASE_CQUI_OnResearchChanged   = OnResearchChanged
+
 BASE_CQUI_OnCivicCompleted    = OnCivicCompleted
 BASE_CQUI_OnResearchCompleted = OnResearchCompleted
 
 BASE_CQUI_UpdateCivicsPanel   = UpdateCivicsPanel
 BASE_CQUI_UpdateResearchPanel = UpdateResearchPanel
+
+BASE_CQUI_RealizeEmptyMessage = RealizeEmptyMessage
+BASE_CQUI_IsAllPanelsHidden   = IsAllPanelsHidden
 
 
 -- ===========================================================================
@@ -26,10 +35,45 @@ local m_lastResearchCompletedID :number = -1; -- needed to display a tooltip
 local m_lastCivicCompletedID    :number = -1; -- needed to display a tooltip
 local CIVIC_PANEL_TEXTURE_NAME    = "CivicPanel_Frame";
 local RESEARCH_PANEL_TEXTURE_NAME = "ResearchPanel_Frame";
+-- local m_EmptyPanelDisabled = true
 
 
 -- ===========================================================================
 -- CQUI Extension Functions
+-- ===========================================================================
+
+-- Called from event handler, thus no need to reregister
+function LateInitialize()
+    local pPlayer :table = Players[ Game.GetLocalPlayer() ]
+    local pPlayerCulture :table = pPlayer and pPlayer:GetCulture()
+    if pPlayerCulture then
+        -- Hide choosers if nothing selected
+        m_hideCivics = -1 == pPlayerCulture:GetProgressingCivic()
+        m_hideResearch = -1 == pPlayer:GetTechs():GetResearchingTech()
+    end
+
+    BASE_CQUI_LateInitialize()
+end
+
+
+-- ===========================================================================
+function OnCivicChanged( playerID:number, eCivic:number )
+    if playerID == Game.GetLocalPlayer() then
+        -- Show CivicsChooser when changed
+        UpdateCivicsPanel(false)
+    end
+    BASE_CQUI_OnCivicChanged(playerID, eCivic)
+end
+
+function OnResearchChanged( playerID:number, eTech:number )
+    if playerID == Game.GetLocalPlayer() then
+        -- Show ResearchChooser when changed
+        UpdateResearchPanel(false)
+    end
+    BASE_CQUI_OnResearchChanged(playerID, eCivic)
+end
+
+
 -- ===========================================================================
 function OnCivicCompleted( playerID:number, eCivic:number )
     if playerID == Game.GetLocalPlayer() then
@@ -92,6 +136,35 @@ function UpdateResearchPanel( isHideResearch:boolean )
             SetMainPanelToolTip(mainPanelToolTip, RESEARCH_PANEL_TEXTURE_NAME);
         end
     end
+end
+
+
+-- ===========================================================================
+function RealizeEmptyMessage()
+  -- Don't show Controls.EmptyPanel when all panels are hidden
+  if m_EmptyPanelDisabled then  return  end
+
+  -- First a quick check if all native panels are hidden.
+  local basegamePanelsHidden :boolean = IsChatHidden() and IsCivicsHidden() and IsResearchHidden()
+  basegamePanelsHidden = basegamePanelsHidden and IsUnitListHidden()
+
+  local kCrisisData :table = basegamePanelsHidden and (g_bIsRiseAndFall or g_bIsGatheringStorm)
+    and Game.GetEmergencyManager():GetEmergencyInfoTable(Game.GetLocalPlayer()) or {}
+  basegamePanelsHidden = basegamePanelsHidden and next(kCrisisData) == nil
+
+  local allPanelsHidden :boolean = basegamePanelsHidden and IsAllPanelsHidden()
+  Controls.EmptyPanel:SetHide(not allPanelsHidden);
+end
+
+function IsAllPanelsHidden()
+  local uiChildren:table = Controls.WorldTrackerVerticalContainer:GetChildren();
+  for i,uiChild in ipairs(uiChildren) do
+    -- print( "IsAllPanelsHidden()", uiChild:GetID(), uiChild:IsVisible() )
+    if uiChild:IsVisible() then
+      return false;
+    end
+  end
+  return true;
 end
 
 
