@@ -28,8 +28,10 @@ end
 -- Cached Base Functions
 -- ===========================================================================
 BASE_CQUI_LateInitialize = LateInitialize;
+BASE_CQUI_OnShutdown = OnShutdown;
 BASE_CQUI_PopulateNode = PopulateNode;
 BASE_CQUI_OnOpen = OnOpen;
+BASE_CQUI_Close = Close;
 BASE_CQUI_OnCivicComplete = OnCivicComplete;
 BASE_CQUI_OnLocalPlayerTurnBegin = OnLocalPlayerTurnBegin;
 BASE_CQUI_SetCurrentNode = SetCurrentNode;
@@ -168,7 +170,28 @@ function OnOpen()
 
     BASE_CQUI_OnOpen()
 
+    -- Queue the screen as a popup, but we want it to render at a desired location in the hierarchy, not on top of everything.
+    if not UIManager:IsInPopupQueue(ContextPtr) then
+        local kParameters = {};
+        kParameters.RenderAtCurrentParent = true;
+        kParameters.InputAtCurrentParent = true;
+        kParameters.AlwaysVisibleInQueue = true;
+        UIManager:QueuePopup(ContextPtr, PopupPriority.Low, kParameters);
+        -- Change our parent to be 'Screens' so the navigational hooks draw on top of it.
+        ContextPtr:ChangeParent(ContextPtr:LookUpControl("/InGame/Screens"));
+    end
+
     Controls.SearchEditBox:TakeFocus();
+end
+
+-- ===========================================================================
+--  CQUI modified Close functiton
+--  Main close function all exit points should call.
+--  Remove from popup queue
+-- ===========================================================================
+function Close()
+    BASE_CQUI_Close()
+    UIManager:DequeuePopup(ContextPtr)
 end
 
 -- ===========================================================================
@@ -202,6 +225,7 @@ function LateInitialize()
     LuaEvents.LaunchBar_RaiseCivicsTree.Remove(BASE_CQUI_OnOpen);
     LuaEvents.CivicsChooser_RaiseCivicsTree.Add(OnOpen);
     LuaEvents.LaunchBar_RaiseCivicsTree.Add(OnOpen);
+    --LuaEvents.CivicsTree_CloseCivicsTree.Add(OnClose_CQUI);
     Events.CivicCompleted.Remove(BASE_CQUI_OnCivicComplete);
     Events.CivicCompleted.Add(OnCivicComplete);
     Events.LocalPlayerTurnBegin.Remove(BASE_CQUI_OnLocalPlayerTurnBegin);
@@ -213,3 +237,24 @@ function LateInitialize()
     LuaEvents.CQUI_SettingsUpdate.Add(CQUI_OnSettingsUpdate);
     LuaEvents.CQUI_SettingsInitialized.Add(CQUI_OnSettingsUpdate);
 end
+
+function OnShutdown()
+    -- Clean up events
+    --[[
+    --LuaEvents.CivicsPanel_RaiseCivicsTree.Add(BASE_CQUI_OnOpen);
+    --LuaEvents.LaunchBar_RaiseCivicsTree.Add(BASE_CQUI_OnOpen);
+    LuaEvents.CivicsChooser_RaiseCivicsTree.Remove(OnOpen);
+    LuaEvents.LaunchBar_RaiseCivicsTree.Remove(OnOpen);
+    LuaEvents.CivicsTree_CloseCivicsTree.Remove(Close_CQUI);
+    --Events.CivicCompleted.Add(BASE_CQUI_OnCivicComplete);
+    Events.CivicCompleted.Remove(OnCivicComplete);
+    --Events.LocalPlayerTurnBegin.Add(BASE_CQUI_OnLocalPlayerTurnBegin);
+    Events.LocalPlayerTurnBegin.Remove(OnLocalPlayerTurnBegin);
+    --]]
+
+    LuaEvents.CQUI_SettingsUpdate.Remove(CQUI_OnSettingsUpdate);
+    LuaEvents.CQUI_SettingsInitialized.Remove(CQUI_OnSettingsUpdate);
+
+    BASE_CQUI_OnShutdown();
+end
+

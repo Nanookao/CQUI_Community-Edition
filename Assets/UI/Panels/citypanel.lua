@@ -1356,6 +1356,18 @@ end
 -- ===========================================================================
 function LateInitialize()
     -- Override in DLC, Expansion, and MODs for special initialization.
+
+    -- Queue the screen as a popup, but we want it to render at a desired location in the hierarchy, not on top of everything.
+    if not UIManager:IsInPopupQueue(ContextPtr) then
+        local kParameters = {};
+        kParameters.RenderAtCurrentParent = true;
+        kParameters.InputAtCurrentParent = true;
+        kParameters.AlwaysVisibleInQueue = true;
+        UIManager:QueuePopup(ContextPtr, PopupPriority.Low, kParameters);
+        -- Change our parent to be 'Screens' so the navigational hooks draw on top of it.
+        ContextPtr:ChangeParent(ContextPtr:LookUpControl("/InGame/Screens"));
+    end
+
 end
 
 -- ===========================================================================

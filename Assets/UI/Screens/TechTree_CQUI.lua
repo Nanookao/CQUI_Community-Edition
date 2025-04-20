@@ -15,10 +15,12 @@ end
 -- Cached Base Functions
 -- ===========================================================================
 BASE_CQUI_OnOpen = OnOpen;
+BASE_CQUI_Close = Close;
 BASE_CQUI_PopulateNode = PopulateNode;
 BASE_CQUI_OnLocalPlayerTurnBegin = OnLocalPlayerTurnBegin;
 BASE_CQUI_OnResearchComplete = OnResearchComplete;
 BASE_CQUI_LateInitialize = LateInitialize;
+BASE_CQUI_OnShutdown = OnShutdown;
 BASE_CQUI_SetCurrentNode = SetCurrentNode;
 
 -- ===========================================================================
@@ -36,6 +38,7 @@ end
 
 -- ===========================================================================
 --  CQUI modified OnOpen functiton
+--  Add to popup queue
 --  Search bar autofocus
 -- ===========================================================================
 function OnOpen()
@@ -45,7 +48,28 @@ function OnOpen()
 
     BASE_CQUI_OnOpen();
 
+    -- Queue the screen as a popup, but we want it to render at a desired location in the hierarchy, not on top of everything.
+    if not UIManager:IsInPopupQueue(ContextPtr) then
+        local kParameters = {};
+        kParameters.RenderAtCurrentParent = true;
+        kParameters.InputAtCurrentParent = true;
+        kParameters.AlwaysVisibleInQueue = true;
+        UIManager:QueuePopup(ContextPtr, PopupPriority.Low, kParameters);
+        -- Change our parent to be 'Screens' so the navigational hooks draw on top of it.
+        ContextPtr:ChangeParent(ContextPtr:LookUpControl("/InGame/Screens"));
+    end
+
     Controls.SearchEditBox:TakeFocus();
+end
+
+-- ===========================================================================
+--  CQUI modified OnClose functiton
+--  Main close function all exit points should call.
+--  Remove from popup queue
+-- ===========================================================================
+function Close()
+    BASE_CQUI_Close()
+    UIManager:DequeuePopup(ContextPtr)
 end
 
 -- ===========================================================================
@@ -189,6 +213,7 @@ function LateInitialize()
     LuaEvents.ResearchChooser_RaiseTechTree.Remove(BASE_CQUI_OnOpen);
     LuaEvents.LaunchBar_RaiseTechTree.Add(OnOpen);
     LuaEvents.ResearchChooser_RaiseTechTree.Add(OnOpen);
+    --LuaEvents.TechTree_CloseTechTree.Add(OnClose_CQUI);
     Events.LocalPlayerTurnBegin.Remove(BASE_CQUI_OnLocalPlayerTurnBegin);
     Events.LocalPlayerTurnBegin.Add(OnLocalPlayerTurnBegin);
     Events.ResearchCompleted.Remove(BASE_CQUI_OnResearchComplete);
@@ -202,3 +227,24 @@ function LateInitialize()
     LuaEvents.CQUI_SettingsUpdate.Add(CQUI_OnSettingsUpdate);
     LuaEvents.CQUI_SettingsInitialized.Add(CQUI_OnSettingsUpdate);
 end
+
+function OnShutdown()
+    -- Clean up events
+    --[[
+    --LuaEvents.LaunchBar_RaiseTechTree.Add(BASE_CQUI_OnOpen);
+    --LuaEvents.ResearchChooser_RaiseTechTree.Add(BASE_CQUI_OnOpen);
+    LuaEvents.LaunchBar_RaiseTechTree.Remove(OnOpen);
+    LuaEvents.ResearchChooser_RaiseTechTree.Remove(OnOpen);
+    LuaEvents.TechTree_CloseTechTree.Remove(OnClose);
+    --Events.LocalPlayerTurnBegin.Add(BASE_CQUI_OnLocalPlayerTurnBegin);
+    Events.LocalPlayerTurnBegin.Remove(OnLocalPlayerTurnBegin);
+    --Events.ResearchCompleted.Add(BASE_CQUI_OnResearchComplete);
+    Events.ResearchCompleted.Remove(OnResearchComplete);
+    --]]
+
+    LuaEvents.CQUI_SettingsUpdate.Remove(CQUI_OnSettingsUpdate);
+    LuaEvents.CQUI_SettingsInitialized.Remove(CQUI_OnSettingsUpdate);
+
+    BASE_CQUI_OnShutdown();
+end
+
