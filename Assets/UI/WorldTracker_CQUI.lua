@@ -10,12 +10,14 @@ else
 end
 
 -- ===========================================================================
--- Cached Base Functions
+-- Overwritten base functions
 -- ===========================================================================
 BASE_CQUI_OnCivicCompleted    = OnCivicCompleted;
-BASE_CQUI_UpdateCivicsPanel   = UpdateCivicsPanel;
 BASE_CQUI_OnResearchCompleted = OnResearchCompleted;
+
+BASE_CQUI_UpdateCivicsPanel   = UpdateCivicsPanel
 BASE_CQUI_UpdateResearchPanel = UpdateResearchPanel;
+
 
 -- ===========================================================================
 -- Variables
@@ -24,6 +26,7 @@ local m_lastResearchCompletedID :number = -1; -- needed to display a tooltip
 local m_lastCivicCompletedID    :number = -1; -- needed to display a tooltip
 local CIVIC_PANEL_TEXTURE_NAME    = "CivicPanel_Frame";
 local RESEARCH_PANEL_TEXTURE_NAME = "ResearchPanel_Frame";
+
 
 -- ===========================================================================
 -- CQUI Extension Functions
@@ -35,6 +38,15 @@ function OnCivicCompleted( ePlayer:number, eCivic:number )
 
     BASE_CQUI_OnCivicCompleted(ePlayer, eCivic);
 end
+
+function OnResearchCompleted( ePlayer:number, eTech:number )
+    if ePlayer == Game.GetLocalPlayer() then
+        m_lastResearchCompletedID = eTech;
+    end
+
+    BASE_CQUI_OnResearchCompleted(ePlayer, eTech);
+end
+
 
 -- ===========================================================================
 function UpdateCivicsPanel(hideCivics:boolean)
@@ -60,15 +72,6 @@ function UpdateCivicsPanel(hideCivics:boolean)
 end
 
 -- ===========================================================================
-function OnResearchCompleted( ePlayer:number, eTech:number )
-    if ePlayer == Game.GetLocalPlayer() then
-        m_lastResearchCompletedID = eTech;
-    end
-
-    BASE_CQUI_OnResearchCompleted(ePlayer, eTech);
-end
-
--- ===========================================================================
 function UpdateResearchPanel( isHideResearch:boolean )
     --print("UpdateResearchPanel");
     BASE_CQUI_UpdateResearchPanel(isHideResearch);
@@ -90,6 +93,7 @@ function UpdateResearchPanel( isHideResearch:boolean )
         end
     end
 end
+
 
 -- ===========================================================================
 -- CQUI Custom Functions
