@@ -13,7 +13,10 @@ end
 -- ===========================================================================
 -- Overwritten base functions
 -- ===========================================================================
+BASE_CQUI_OnInit              = OnInit
 BASE_CQUI_LateInitialize      = LateInitialize
+-- BASE_CQUI_OnGameDebugReturn   = OnGameDebugReturn
+BASE_CQUI_OnShutdown          = OnShutdown
 
 BASE_CQUI_OnCivicChanged      = OnCivicChanged
 BASE_CQUI_OnResearchChanged   = OnResearchChanged
@@ -31,8 +34,14 @@ BASE_CQUI_IsAllPanelsHidden   = IsAllPanelsHidden
 -- ===========================================================================
 -- Variables
 -- ===========================================================================
-local m_lastResearchCompletedID :number = -1; -- needed to display a tooltip
-local m_lastCivicCompletedID    :number = -1; -- needed to display a tooltip
+g_researchInstance  = nil
+g_civicsInstance    = nil
+local m_ResearchType  :string
+local m_CivicType     :string
+-- local m_hideResearch  :boolean
+-- local m_hideCivics    :boolean
+-- local m_lastResearchCompletedID :number = -1
+-- local m_lastCivicCompletedID    :number = -1
 local CIVIC_PANEL_TEXTURE_NAME    = "CivicPanel_Frame";
 local RESEARCH_PANEL_TEXTURE_NAME = "ResearchPanel_Frame";
 -- local m_EmptyPanelDisabled = true
@@ -41,19 +50,57 @@ local RESEARCH_PANEL_TEXTURE_NAME = "ResearchPanel_Frame";
 -- ===========================================================================
 -- CQUI Extension Functions
 -- ===========================================================================
+function OnInit(isReload:boolean)	
+    print( "CQUI OnInit(): isReload=", isReload )
+    -- Standard refresh even if reloading
+    -- Removed LuaEvents.GameDebug_GetValues()
+    return BASE_CQUI_OnInit(false)
+end
 
 -- Called from event handler, thus no need to reregister
 function LateInitialize()
-    local pPlayer :table = Players[ Game.GetLocalPlayer() ]
+    local playerID = Game.GetLocalPlayer()
+    local pPlayerConfig = PlayerConfigurations[playerID];
+    local m_hideResearch = toboolean( pPlayerConfig:GetValue("WorldTracker_hideResearch") )
+    local m_hideCivics   = toboolean( pPlayerConfig:GetValue("WorldTracker_hideCivics") )
+    local m_lastResearchCompletedID = tonumber( pPlayerConfig:GetValue("WorldTracker_lastResearchCompletedID") or nil )
+    local m_lastCivicCompletedID    = tonumber( pPlayerConfig:GetValue("WorldTracker_lastCivicCompletedID") or nil )
+
+    local pPlayer :table = Players[playerID]
     local pPlayerCulture :table = pPlayer and pPlayer:GetCulture()
     if pPlayerCulture then
         -- Hide choosers if nothing selected
-        m_hideCivics = -1 == pPlayerCulture:GetProgressingCivic()
-        m_hideResearch = -1 == pPlayer:GetTechs():GetResearchingTech()
+        if m_hideResearch == nil then  m_hideResearch = -1 == pPlayer:GetTechs():GetResearchingTech()  end
+        if m_hideCivics   == nil then  m_hideCivics   = -1 == pPlayerCulture:GetProgressingCivic()  end
     end
+
+    if m_hideResearch then  UpdateResearchPanel(m_hideResearch)  end
+    if m_hideCivics   then  UpdateCivicsPanel  (m_hideCivics  )  end
+    if m_lastResearchCompletedID then  BASE_CQUI_OnResearchCompleted(playerID, m_lastResearchCompletedID)  end
+    if m_lastCivicCompletedID    then  BASE_CQUI_OnCivicCompleted   (playerID, m_lastCivicCompletedID   )  end
 
     BASE_CQUI_LateInitialize()
 end
+
+--[[
+function OnGameDebugReturn(context:string, contextTable:table)	
+    -- if context ~= RELOAD_CACHE_ID then  return  end
+    -- LateInitialize() restores m_lastResearchCompletedID and similars
+end
+--]]
+
+function OnShutdown()
+    Unsubscribe()
+    -- Removed LuaEvents.GameDebug_AddValue(*)
+end
+
+
+function CQUI_Initialize()
+	ContextPtr:SetInitHandler(OnInit)
+	ContextPtr:SetShutdown(OnShutdown)
+	LuaEvents.GameDebug_Return.Remove(OnGameDebugReturn)
+end
+CQUI_Initialize()
 
 
 -- ===========================================================================
@@ -78,6 +125,7 @@ end
 function OnCivicCompleted( playerID:number, eCivic:number )
     if playerID == Game.GetLocalPlayer() then
         m_lastCivicCompletedID = eCivic;
+        PlayerConfigurations[playerID]:SetValue("WorldTracker_lastCivicCompletedID", m_lastCivicCompletedID)
     end
 
     BASE_CQUI_OnCivicCompleted(playerID, eCivic);
@@ -86,6 +134,7 @@ end
 function OnResearchCompleted( playerID:number, eTech:number )
     if playerID == Game.GetLocalPlayer() then
         m_lastResearchCompletedID = eTech;
+        PlayerConfigurations[playerID]:SetValue("WorldTracker_lastResearchCompletedID", m_lastResearchCompletedID)
     end
 
     BASE_CQUI_OnResearchCompleted(playerID, eTech);
@@ -179,4 +228,11 @@ function SetMainPanelToolTip(toolTip:string, panelTextureName:string)
             ctrl:LocalizeAndSetToolTip(toolTip);
         end
     end
+end
+
+
+function toboolean(str :string)
+    if type(str) == 'boolean' then  return str  end
+    if str == 'false' then  return false  end
+    return str == 'true' or nil
 end
