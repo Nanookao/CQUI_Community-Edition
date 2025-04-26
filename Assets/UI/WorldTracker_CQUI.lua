@@ -27,6 +27,9 @@ BASE_CQUI_OnResearchCompleted = OnResearchCompleted
 BASE_CQUI_UpdateCivicsPanel   = UpdateCivicsPanel
 BASE_CQUI_UpdateResearchPanel = UpdateResearchPanel
 
+BASE_CQUI_RealizeCurrentCivic = RealizeCurrentCivic
+BASE_CQUI_RealizeCurrentResearch = RealizeCurrentResearch
+
 BASE_CQUI_RealizeEmptyMessage = RealizeEmptyMessage
 BASE_CQUI_IsAllPanelsHidden   = IsAllPanelsHidden
 
@@ -185,6 +188,44 @@ function UpdateResearchPanel( isHideResearch:boolean )
             SetMainPanelToolTip(mainPanelToolTip, RESEARCH_PANEL_TEXTURE_NAME);
         end
     end
+end
+
+-- ===========================================================================
+function RealizeCurrentCivic( playerID:number, kData:table, kControl:table, ... )
+  if not g_civicsInstance then
+    g_civicsInstance = kControl
+
+    local function OnRightClick()
+      return m_CivicType and LuaEvents.OpenCivilopedia(m_CivicType)
+    end
+
+    local button = kControl.HeaderButton or kControl.TitleButton
+    button:RegisterCallback(Mouse.eLClick, function()  LuaEvents.WorldTracker_OpenChooseCivic()  end)
+    button:RegisterCallback(Mouse.eRClick, OnRightClick)
+    kControl.IconButton:RegisterCallback(	Mouse.eRClick, OnRightClick)
+  end
+
+  m_CivicType = kData and kData.CivicType
+  BASE_CQUI_RealizeCurrentCivic(playerID, kData, kControl, ...)
+end
+
+
+function RealizeCurrentResearch( playerID:number, kData:table, kControl:table, ... )
+  if not g_researchInstance then
+    g_researchInstance = kControl
+
+    local function OnRightClick()
+      return m_ResearchType and LuaEvents.OpenCivilopedia(m_ResearchType)
+    end
+
+    local button = kControl.HeaderButton or kControl.TitleButton
+    button:RegisterCallback(Mouse.eLClick, function()  LuaEvents.WorldTracker_OpenChooseResearch()  end)
+    button:RegisterCallback(Mouse.eRClick, OnRightClick)
+    kControl.IconButton:RegisterCallback(	Mouse.eRClick, OnRightClick)
+  end
+
+  m_ResearchType = kData and kData.TechType
+  BASE_CQUI_RealizeCurrentResearch(playerID, kData, kControl, ...)
 end
 
 
