@@ -12,11 +12,11 @@ end
 -- ===========================================================================
 -- Overwritten base functions
 -- ===========================================================================
-BASE_CQUI_OnCivicCompleted    = OnCivicCompleted;
-BASE_CQUI_OnResearchCompleted = OnResearchCompleted;
+BASE_CQUI_OnCivicCompleted    = OnCivicCompleted
+BASE_CQUI_OnResearchCompleted = OnResearchCompleted
 
 BASE_CQUI_UpdateCivicsPanel   = UpdateCivicsPanel
-BASE_CQUI_UpdateResearchPanel = UpdateResearchPanel;
+BASE_CQUI_UpdateResearchPanel = UpdateResearchPanel
 
 
 -- ===========================================================================
@@ -31,20 +31,20 @@ local RESEARCH_PANEL_TEXTURE_NAME = "ResearchPanel_Frame";
 -- ===========================================================================
 -- CQUI Extension Functions
 -- ===========================================================================
-function OnCivicCompleted( ePlayer:number, eCivic:number )
-    if ePlayer == Game.GetLocalPlayer() then
+function OnCivicCompleted( playerID:number, eCivic:number )
+    if playerID == Game.GetLocalPlayer() then
         m_lastCivicCompletedID = eCivic;
     end
 
-    BASE_CQUI_OnCivicCompleted(ePlayer, eCivic);
+    BASE_CQUI_OnCivicCompleted(playerID, eCivic);
 end
 
-function OnResearchCompleted( ePlayer:number, eTech:number )
-    if ePlayer == Game.GetLocalPlayer() then
+function OnResearchCompleted( playerID:number, eTech:number )
+    if playerID == Game.GetLocalPlayer() then
         m_lastResearchCompletedID = eTech;
     end
 
-    BASE_CQUI_OnResearchCompleted(ePlayer, eTech);
+    BASE_CQUI_OnResearchCompleted(playerID, eTech);
 end
 
 
