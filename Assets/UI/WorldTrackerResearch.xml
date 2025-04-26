@@ -7,7 +7,7 @@
 			<Box																													Offset="0,25"	Size="parent,1" 			Color="0,0,0,100"/>
 			<Container																										Offset="-5,0"	Size="parent,parent" >
 				<FlipAnim			ID="MainGearAnim"																																	Texture="ResearchPanel_MeterFrameAnim" FrameCount="3" Columns="3" Speed="10" Size="40,40" Stopped="1"/>
-				<TextButton		ID="TitleButton"															Offset="65,8"		Size="200,40"				Style="PanelHeaderText" String="ResearchName" />
+				<TextButton		ID="TitleButton"															Offset="65,8"		Size="200,40"				Style="PanelHeaderText" String="Research_CQUI" />
 				<Image																																													Texture="ResearchPanel_MeterFrame">
 					<Button			ID="IconButton"									Anchor="C,C"								Size="44,44"					Texture="ResearchPanel_Button"		>
 						<Image		ID="Icon"												Anchor="C,C" Size="38,38"					Texture="Tech38" />
