@@ -156,12 +156,13 @@ function UpdateCivicsPanel(hideCivics:boolean)
         if iCivic == -1 then
             iCivic = m_lastCivicCompletedID;
         end
+        local pCivic = GameInfo.Civics[iCivic]
         -- show the tooltip
-        if iCivic == -1 then
+        if not pCivic then
             -- Nothing yet researched (begin of the game)
             SetMainPanelToolTip(Locale.Lookup("LOC_WORLD_TRACKER_CHOOSE_CIVIC"), CIVIC_PANEL_TEXTURE_NAME);
         else
-            local mainPanelToolTip:string = ToolTipHelper.GetToolTip( GameInfo.Civics[iCivic].CivicType, localPlayer );
+            local mainPanelToolTip:string = ToolTipHelper.GetToolTip( pCivic.CivicType, localPlayer );
             SetMainPanelToolTip(mainPanelToolTip, CIVIC_PANEL_TEXTURE_NAME);
         end
     end
@@ -179,12 +180,13 @@ function UpdateResearchPanel( isHideResearch:boolean )
         if iTech == -1 then
             iTech = m_lastResearchCompletedID;
         end
+        local pTech = GameInfo.Technologies[iTech]
         -- show the tooltip
-        if iTech == -1 then
+        if not pTech then
             -- Nothing yet researched (begin of the game)
             SetMainPanelToolTip(Locale.Lookup("LOC_WORLD_TRACKER_CHOOSE_RESEARCH"), RESEARCH_PANEL_TEXTURE_NAME);
         else
-            local mainPanelToolTip:string = ToolTipHelper.GetToolTip( GameInfo.Technologies[iTech].TechnologyType, localPlayer );
+            local mainPanelToolTip:string = ToolTipHelper.GetToolTip( pTech.TechnologyType, localPlayer );
             SetMainPanelToolTip(mainPanelToolTip, RESEARCH_PANEL_TEXTURE_NAME);
         end
     end
