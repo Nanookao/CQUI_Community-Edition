@@ -5,9 +5,11 @@ if VERSION <= loadedVersion then  return  end
 
 
 local m_PanelContainer = Controls.WorldTrackerVerticalContainer
+local m_CheckBoxContainer = Controls.DropdownGrid and Controls.DropdownGrid:GetChildren()[1]
 ExposedMembers.WorldTracker = ExposedMembers.WorldTracker or {}
 ExposedMembers.WorldTracker.VERSION = VERSION
 ExposedMembers.WorldTracker.Panels = ExposedMembers.WorldTracker.Panels or {}
+ExposedMembers.WorldTracker.CheckBoxes = ExposedMembers.WorldTracker.CheckBoxes or {}
 ExposedMembers.WorldTracker.PanelContainer = m_PanelContainer
 ExposedMembers.WorldTracker.CheckBoxContainer = m_CheckBoxContainer
 
@@ -20,8 +22,8 @@ ExposedMembers.WorldTracker.CheckBoxContainer = m_CheckBoxContainer
 -- The previous panel with the same ID will be removed.
 -- @param  ID  the unique identifier of the added panel
 -- @param  pPanel  the panel UI object
-function ExposedMembers.WorldTracker:AttachPanel(ID :string, pPanel :table)
-    print( "ExposedMembers.WorldTracker:AttachPanel('"..ID.."', "..tostring(pPanel)..")" )
+function ExposedMembers.WorldTracker:AttachPanel(ID :string, pPanel :table, pCheckBox :table)
+    print( "ExposedMembers.WorldTracker:AttachPanel('"..ID.."', pPanel= ", pPanel, ", pCheckBox= ", pCheckBox, ")" )
     local pPrevious = self.Panels[ID]
     if pPrevious ~= pPanel then
         self.Panels[ID] = pPanel
