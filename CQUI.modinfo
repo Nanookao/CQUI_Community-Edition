@@ -422,7 +422,7 @@
 
         <ImportFiles id="CQUI_IMPORT_FILES_WORLDTRACKER">
             <Items>
-                <File>Assets/UI/WorldTracker_CQUI.lua</File>
+                <!-- <File>Assets/UI/WorldTracker_CQUI.lua</File> -->
                 <File>Assets/UI/WorldTrackerCivic.xml</File>
                 <File>Assets/UI/WorldTrackerResearch.xml</File>
             </Items>
