@@ -10,6 +10,9 @@ else
     include("WorldTracker");
 end
 
+include("WorldTracker_AttachPanels")
+
+
 -- ===========================================================================
 -- Overwritten base functions
 -- ===========================================================================
