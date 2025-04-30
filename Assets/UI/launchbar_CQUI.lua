@@ -1,3 +1,16 @@
+print("Loading launchbar_CQUI.lua from CQUI");
+include("CQUICommon.lua");
+
+-- Load the proper basegame file
+if g_bIsGatheringStorm then
+    include("LaunchBar_Expansion2")
+elseif g_bIsRiseAndFall then
+    include("LaunchBar_Expansion1")
+else
+    include("LaunchBar")
+end
+
+
 include( "GameCapabilities" );
 include( "GovernorSupport" );
 
