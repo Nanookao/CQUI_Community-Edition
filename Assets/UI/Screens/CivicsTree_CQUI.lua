@@ -105,7 +105,7 @@ function OnLocalPlayerTurnBegin()
             if isCurrentBoosted then
                 CQUI_halfwayNotified[civicName] = true;
             elseif percentageNextTurn >= CQUI_halfway and CQUI_halfwayNotified[civicName] ~= true then
-                LuaEvents.CQUI_AddStatusMessage(Locale.Lookup("LOC_CQUI_CIVIC_MESSAGE_S") .. " " .. Locale.Lookup( civicName ) ..  " " .. Locale.Lookup("LOC_CQUI_HALF_MESSAGE_E"), 10, CQUI_STATUS_MESSAGE_CIVIC);
+                LuaEvents.StatusMessage("[ICON_CULTURE]"..Locale.Lookup("LOC_CQUI_CIVIC_MESSAGE_S") .. " " .. Locale.Lookup( civicName ) ..  " " .. Locale.Lookup("LOC_CQUI_HALF_MESSAGE_E"), 10, ReportingStatusTypes.DEFAULT);
                 CQUI_halfwayNotified[civicName] = true;
             end
 
@@ -129,7 +129,7 @@ function OnCivicComplete( ePlayer:number, eTech:number)
         -- Make sure there is a civic selected before continuing with checks
         if currentCivicID ~= -1 then
             local civicName = GameInfo.Civics[currentCivicID].Name;
-            LuaEvents.CQUI_AddStatusMessage(Locale.Lookup("LOC_CIVIC_BOOST_COMPLETE", civicName), 10, CQUI_STATUS_MESSAGE_CIVIC);
+            LuaEvents.StatusMessage("[ICON_CULTURE]"..Locale.Lookup("LOC_CIVIC_BOOST_COMPLETE", civicName), 10, ReportingStatusTypes.DEFAULT);
         end
 
         -- CQUI update all cities real housing when play as Cree and researched Civil Service

@@ -128,7 +128,7 @@ function OnLocalPlayerTurnBegin()
             if isCurrentBoosted then
                 CQUI_halfwayNotified[techName] = true;
             elseif percentageNextTurn >= CQUI_halfway and isCurrentBoosted == false and CQUI_halfwayNotified[techName] ~= true then
-                    LuaEvents.CQUI_AddStatusMessage(Locale.Lookup("LOC_CQUI_TECH_MESSAGE_S") .. " " .. Locale.Lookup( techName ) .. " " .. Locale.Lookup("LOC_CQUI_HALF_MESSAGE_E"), 10, CQUI_STATUS_MESSAGE_TECHS);
+                    LuaEvents.StatusMessage("[ICON_SCIENCE]"..Locale.Lookup("LOC_CQUI_TECH_MESSAGE_S") .. " " .. Locale.Lookup( techName ) .. " " .. Locale.Lookup("LOC_CQUI_HALF_MESSAGE_E"), 10, ReportingStatusTypes.DEFAULT);
                     CQUI_halfwayNotified[techName] = true;
             end
 
@@ -152,7 +152,7 @@ function OnResearchComplete( ePlayer:number, eTech:number)
         -- Make sure there is a technology selected before continuing with checks
         if currentTechID ~= -1 then
             local techName = GameInfo.Technologies[currentTechID].Name;
-            LuaEvents.CQUI_AddStatusMessage(Locale.Lookup("LOC_TECH_BOOST_COMPLETE", techName), 10, CQUI_STATUS_MESSAGE_TECHS);
+            LuaEvents.StatusMessage("[ICON_SCIENCE]"..Locale.Lookup("LOC_TECH_BOOST_COMPLETE", techName), 10, ReportingStatusTypes.DEFAULT);
         end
 
         -- CQUI update all cities real housing when play as India and researched Sanitation

@@ -12,9 +12,14 @@ BASE_CQUI_OnStatusMessage = OnStatusMessage;
 -- ===========================================================================
 local DEFAULT_TIME_TO_DISPLAY :number = 10; -- Seconds to display the message
 
+-- ReportingStatusTypes.DEFAULT == 103780558
+-- ReportingStatusTypes.GOSSIP  == -552441153
+
 -- CQUI CONSTANTS Trying to make the different messages have unique colors
 local CQUI_STATUS_MESSAGE_CIVIC            :number = 3; -- Number to distinguish civic messages
 local CQUI_STATUS_MESSAGE_TECHS            :number = 4; -- Number to distinguish tech messages
+ReportingStatusTypes.CQUI_STATUS_MESSAGE_CIVIC :number = 3 -- Number to distinguish civic messages
+ReportingStatusTypes.CQUI_STATUS_MESSAGE_TECHS :number = 4 -- Number to distinguish tech messages
 
 -- ===========================================================================
 -- CQUI Members
@@ -42,10 +47,10 @@ function OnStatusMessage( message:string, displayTime:number, type:number, subTy
             end
         end
     elseif (type == CQUI_STATUS_MESSAGE_CIVIC) then
-        message = "[ICON_CULTURE]"..message;
+        -- message = "[ICON_CULTURE]"..message;
         type = ReportingStatusTypes.DEFAULT;
     elseif (type == CQUI_STATUS_MESSAGE_TECHS) then
-        message = "[ICON_SCIENCE]"..message;
+        -- message = "[ICON_SCIENCE]"..message;
         type = ReportingStatusTypes.DEFAULT;
     end
 
@@ -86,7 +91,7 @@ function CQUI_IsGossipMessageIgnored(str)
 end
 
 -- ===========================================================================
-function CQUI_OnStatusMessage(str:string, fDisplayTime:number, messageType:number)
+function CQUI_OnStatusMessage(str:string, fDisplayTime:number, messageType:number, subType:number )
     OnStatusMessage(str, fDisplayTime, messageType, nil);
 end
 
@@ -339,17 +344,17 @@ function CQUI_DebugTest()
             if uiMsg == KeyEvents.KeyUp then 
                 local key = pInputStruct:GetKey();
                 if key == Keys.F then
-                    OnStatusMessage("CQUI civic status message", 10, CQUI_STATUS_MESSAGE_CIVIC, nil);
+                    OnStatusMessage("[ICON_CULTURE]".."CQUI civic status message", 10, CQUI_STATUS_MESSAGE_CIVIC, nil);
                     return true;
                 end
 
                 if key == Keys.G then
-                    OnStatusMessage("CQUI techs status message", 10, CQUI_STATUS_MESSAGE_TECHS, nil);
+                    OnStatusMessage("[ICON_SCIENCE]".."CQUI techs status message", 10, CQUI_STATUS_MESSAGE_TECHS, nil);
                     return true;
                 end
 
                 if key == Keys.H then
-                    OnStatusMessage("CQUI default status message", 10, ReportingStatusTypes.DEFAULT, subType );
+                    OnStatusMessage("CQUI default status message", 10, ReportingStatusTypes.DEFAULT, nil);
                     return true;
                 end
             end
