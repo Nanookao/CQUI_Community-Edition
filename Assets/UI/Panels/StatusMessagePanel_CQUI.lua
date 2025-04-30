@@ -49,12 +49,12 @@ function OnStatusMessage( message:string, displayTime:number, type:number, subTy
         type = ReportingStatusTypes.DEFAULT;
     end
 
-    local timeToDisplay:number = DEFAULT_TIME_TO_DISPLAY;
-    if (displayTime and (displayTime > 0)) then
-        timeToDisplay = displayTime;
+    -- displayTime = displayTime and displayTime > 0 and displayTime or DEFAULT_TIME_TO_DISPLAY
+    if not displayTime or displayTime == 0 then
+        displayTime = DEFAULT_TIME_TO_DISPLAY
     end
 
-    BASE_CQUI_OnStatusMessage(message, timeToDisplay, type, subType);
+    BASE_CQUI_OnStatusMessage(message, displayTime, type, subType);
 end
 
 -- ===========================================================================
